@@ -8,7 +8,7 @@ hostname: $shortname
 
 coreos:
  etcd2:
-   discovery: https://discovery.etcd.io/$discovery" > ./cloud-config
+   discovery: https://discovery.etcd.io/$discovery" > $cloudconfig
    echo '   advertise-client-urls: http://$private_ipv4:2379,http://$private_ipv4:4001
    initial-advertise-peer-urls: http://$private_ipv4:2380
    listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
@@ -28,8 +28,8 @@ coreos:
 
      [Service]
      TimeoutStartSec=0
-     ExecStartPre=/usr/bin/docker pull jpazdyga/ansible' >> ./cloud-config
-     echo "     ExecStart=/usr/bin/docker run --name ansible -d -p $sshport:22 jpazdyga/ansible" >> ./cloud-config
+     ExecStartPre=/usr/bin/docker pull jpazdyga/ansible' >> $cloudconfig
+     echo "     ExecStart=/usr/bin/docker run --name ansible -d -p $sshport:22 jpazdyga/ansible" >> $cloudconfig
      echo '
      [Install]
      WantedBy=multi-user.target
@@ -39,8 +39,8 @@ users:
    groups:
      - sudo
      - docker
-   ssh_authorized_keys:' >> ./cloud-config
-echo "     - $authorizedkey" >> ./cloud-config
+   ssh_authorized_keys:' >> $cloudconfig
+echo "     - $authorizedkey" >> $cloudconfig
 }
 
 defineandstart() {
@@ -52,13 +52,15 @@ defineandstart() {
 	echo "Ansible server's private IP: $privip, public IP: $pubip"
 }
 
-if [ -z "$1" ];
+if [ "$#" -ne "3" ];
 then
 	echo "Usage: $0 [server_shortname] [domainname] [ssh_listen_port]" 
 	exit 1
 fi
 
 ###     Things to be adjusted:  ###
+
+cloudconfig="./cloud-config"
 
 # Authorized keys for user 'core'
 authorizedkey="ssh-rsa AAAAB3N................iOc7qeblJEUqrMXPij50LcE0ya10cmdAw=="
