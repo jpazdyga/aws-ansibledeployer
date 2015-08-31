@@ -1,5 +1,17 @@
 #!/bin/bash 
 
+ansibleready() {
+        state=`nc -z $pubip $sshport; echo $?`
+        if [ "$state" -ne "0" ];
+        then
+                echo -e "\nWaiting for Ansible server's SSH daemon to start listening on port $sshport..."
+                sleep 10
+                ansibleready
+        else
+                echo -e "\nAnsible is now accessible ($pubip:$sshport) using ssh. Thanks!"
+        fi
+}
+
 createcloudconfig() {
 
 echo "#cloud-config
@@ -82,3 +94,4 @@ sshport="$3"
 
 createcloudconfig
 defineandstart
+ansibleready
